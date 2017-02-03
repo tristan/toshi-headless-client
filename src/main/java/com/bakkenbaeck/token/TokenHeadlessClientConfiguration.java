@@ -9,7 +9,7 @@ public final class TokenHeadlessClientConfiguration {
     private RedisConfiguration redis;
 
     public String getAddress() {
-        return address;
+        return (address != null) ? address : System.getenv("TOKEN_CLIENT_ADDRESS");
     }
 
     public void setAddress(String address) {
