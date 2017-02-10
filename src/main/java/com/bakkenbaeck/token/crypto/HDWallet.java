@@ -18,6 +18,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Security;
+import java.util.Arrays;
 
 import static com.bakkenbaeck.token.crypto.util.HashUtil.sha3;
 
@@ -121,7 +122,7 @@ public class HDWallet {
     }
 
     public String signTransaction(final String data) {
-        return sign(data.getBytes(), this.receivingKey);
+        return sign(Hex.decode(data.substring(2)), this.receivingKey);
     }
 
     private String sign(final byte[] bytes, final ECKey key) {
