@@ -1,6 +1,6 @@
 package com.bakkenbaeck.token.headless.rpc;
 
-import com.bakkenbaeck.token.EthService;
+import com.bakkenbaeck.token.headless.EthService;
 import com.bakkenbaeck.token.headless.rpc.entities.*;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.fasterxml.jackson.databind.ObjectMapper;

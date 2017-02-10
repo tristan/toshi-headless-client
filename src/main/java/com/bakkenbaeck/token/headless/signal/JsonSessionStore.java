@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.signal;
+package com.bakkenbaeck.token.headless.signal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;

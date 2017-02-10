@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.signal;
+package com.bakkenbaeck.token.headless.signal;
 
 public class UserAlreadyExists extends Exception {
     private String username;

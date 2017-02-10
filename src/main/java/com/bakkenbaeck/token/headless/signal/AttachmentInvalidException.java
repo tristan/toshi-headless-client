@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.signal;
+package com.bakkenbaeck.token.headless.signal;
 
 //import org.freedesktop.dbus.exceptions.DBusExecutionException;
 

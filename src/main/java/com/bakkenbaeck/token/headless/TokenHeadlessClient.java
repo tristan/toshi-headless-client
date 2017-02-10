@@ -1,9 +1,9 @@
-package com.bakkenbaeck.token;
+package com.bakkenbaeck.token.headless;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
-import com.bakkenbaeck.token.signal.Manager;
+import com.bakkenbaeck.token.headless.signal.Manager;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

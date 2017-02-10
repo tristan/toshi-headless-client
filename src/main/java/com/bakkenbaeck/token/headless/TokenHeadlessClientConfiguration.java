@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token;
+package com.bakkenbaeck.token.headless;
 
 
 public final class TokenHeadlessClientConfiguration {

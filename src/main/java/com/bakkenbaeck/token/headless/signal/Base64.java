@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.signal;
+package com.bakkenbaeck.token.headless.signal;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>

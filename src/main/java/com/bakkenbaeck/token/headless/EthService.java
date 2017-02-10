@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token;
+package com.bakkenbaeck.token.headless;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.network.*;

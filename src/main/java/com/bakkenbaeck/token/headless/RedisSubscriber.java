@@ -1,9 +1,9 @@
-package com.bakkenbaeck.token;
+package com.bakkenbaeck.token.headless;
 
 import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.headless.rpc.entities.HeadlessRPCRequest;
-import com.bakkenbaeck.token.signal.AttachmentInvalidException;
-import com.bakkenbaeck.token.signal.Manager;
+import com.bakkenbaeck.token.headless.signal.AttachmentInvalidException;
+import com.bakkenbaeck.token.headless.signal.Manager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.whispersystems.signalservice.api.push.exceptions.EncapsulatedExceptions;
 import redis.clients.jedis.JedisPubSub;

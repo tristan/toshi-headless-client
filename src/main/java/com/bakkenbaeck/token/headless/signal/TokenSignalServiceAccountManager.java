@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.signal;
+package com.bakkenbaeck.token.headless.signal;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import okhttp3.*;

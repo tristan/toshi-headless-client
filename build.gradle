@@ -22,12 +22,12 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'token-headless-client',
                 'Implementation-Version': version,
-                'Main-Class': 'com.bakkenbaeck.token.TokenHeadlessClient'
+                'Main-Class': 'com.bakkenbaeck.token.headless.TokenHeadlessClient'
     }
 }
 
 task TokenHeadlessClientCapsule(type: FatCapsule) {
-    applicationClass 'com.bakkenbaeck.token.TokenHeadlessClient'
+    applicationClass 'com.bakkenbaeck.token.headless.TokenHeadlessClient'
 }
 
 dependencies {

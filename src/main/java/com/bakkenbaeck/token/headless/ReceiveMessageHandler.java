@@ -1,9 +1,9 @@
-package com.bakkenbaeck.token;
+package com.bakkenbaeck.token.headless;
 
-import com.bakkenbaeck.token.signal.Base64;
-import com.bakkenbaeck.token.signal.ContactInfo;
-import com.bakkenbaeck.token.signal.GroupInfo;
-import com.bakkenbaeck.token.signal.Manager;
+import com.bakkenbaeck.token.headless.signal.Base64;
+import com.bakkenbaeck.token.headless.signal.ContactInfo;
+import com.bakkenbaeck.token.headless.signal.GroupInfo;
+import com.bakkenbaeck.token.headless.signal.Manager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.whispersystems.signalservice.api.messages.*;
