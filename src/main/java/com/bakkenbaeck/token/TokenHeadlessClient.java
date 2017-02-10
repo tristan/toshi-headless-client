@@ -2,6 +2,7 @@ package com.bakkenbaeck.token;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.signal.Manager;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 class TokenHeadlessClient {
     private static TokenHeadlessClientConfiguration config;
     private static Logger logger = Logger.getLogger(TokenHeadlessClient.class.toString());
+
 
     public static void main(String[] args) throws Exception {
 
@@ -41,7 +43,8 @@ class TokenHeadlessClient {
         Security.insertProviderAt(new org.bouncycastle.jce.provider.BouncyCastleProvider(), 1);
 
         HDWallet wallet = new HDWallet().init(config.getSeed());
-        System.out.println("Address: " + wallet.getAddress());
+        System.out.println("ID Address: " + wallet.getAddress());
+        System.out.println("Wallet Address: " + wallet.getWalletAddress());
 
         final String username = wallet.getAddress();
         final boolean voice = false;
@@ -53,13 +56,22 @@ class TokenHeadlessClient {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         JedisPool jedisPool = new JedisPool(poolConfig, config.getRedis().getHost(), config.getRedis().getPort(), config.getRedis().getTimeout(), config.getRedis().getPassword());
 
-        final RedisSubscriber subscriber = new RedisSubscriber(m);
+
+        // -- eth service
+        EthService ethService = new EthService(wallet);
+
+
+        // -- rpc
+        HeadlessRPC rpc = new HeadlessRPC(jedisPool, username, ethService);
+
+
+        final RedisSubscriber subscriber = new RedisSubscriber(rpc, m);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Jedis subscriberJedis = new Jedis(config.getRedis().getUri());
                 try {
-                    subscriberJedis.subscribe(subscriber, username);
+                    subscriberJedis.subscribe(subscriber, username, username+"_rpc_request");
                     System.out.println("Subscription ended.");
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Subscribing failed.", e);
