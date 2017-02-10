@@ -121,6 +121,9 @@ public class Manager {
         this.dataPath = this.settingsPath + "/data";
         this.attachmentsPath = this.settingsPath + "/attachments";
         this.avatarsPath = this.settingsPath + "/avatars";
+        new File(this.dataPath).mkdirs();
+        new File(this.attachmentsPath).mkdirs();
+        new File(this.avatarsPath).mkdirs();
 
         jsonProcessor.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE); // disable autodetect
         jsonProcessor.enable(SerializationFeature.INDENT_OUTPUT); // for pretty print, you can disable it.
@@ -217,6 +220,7 @@ public class Manager {
             System.err.println("Config file lock acquired.");
         }
     }
+
 
     public void init() throws IOException {
         load();
