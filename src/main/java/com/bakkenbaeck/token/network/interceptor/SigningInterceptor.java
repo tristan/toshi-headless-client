@@ -41,7 +41,6 @@ public class SigningInterceptor implements Interceptor {
     public Response intercept(final Chain chain) throws IOException {
         final Request original = chain.request();
 
-
         final String timestamp = original.url().queryParameter(TIMESTAMP_QUERY_PARAMETER);
         if (this.wallet == null || timestamp == null) {
             // Only signing outgoing requests that have a timestamp argument
@@ -56,12 +55,8 @@ public class SigningInterceptor implements Interceptor {
         final byte[] hashedBody = HashUtil.sha3(body);
         final String encodedBody = Base64.getEncoder().encodeToString(hashedBody);
 
-        System.out.println(bodyToString(original.body()));
-
         final String forSigning = method + "\n" + path + "\n" + timestamp + "\n" + encodedBody;
         final String signature = this.wallet.signIdentity(forSigning);
-        System.out.println(forSigning);
-        System.out.println(signature);
 
         final HttpUrl url = chain.request().url()
                 .newBuilder()

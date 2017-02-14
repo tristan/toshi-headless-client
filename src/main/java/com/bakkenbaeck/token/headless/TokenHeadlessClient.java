@@ -4,10 +4,14 @@ package com.bakkenbaeck.token.headless;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.headless.signal.Manager;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.UserDetails;
+import com.bakkenbaeck.token.network.IdService;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +25,6 @@ import java.util.logging.Logger;
 class TokenHeadlessClient {
     private static TokenHeadlessClientConfiguration config;
     private static Logger logger = Logger.getLogger(TokenHeadlessClient.class.toString());
-
 
     public static void main(String[] args) throws Exception {
 
@@ -56,10 +59,32 @@ class TokenHeadlessClient {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         JedisPool jedisPool = new JedisPool(poolConfig, config.getRedis().getHost(), config.getRedis().getPort(), config.getRedis().getTimeout(), config.getRedis().getPassword());
 
-
         // -- eth service
         EthService ethService = new EthService(wallet);
 
+        // -- id service
+        IdService idService = new IdService(wallet);
+
+        if (config.getUsername() != null && config.getAddress().equals(wallet.getAddress())) {
+            UserDetails userDetails = new UserDetails();
+            userDetails.setUsername(config.getUsername());
+            userDetails.setWalletAddress(wallet.getWalletAddress());
+
+            Response<User> getResponse = idService.getApi().getUser(wallet.getAddress()).execute();
+            final long ts = idService.getApi().getTimestamp().execute().body().get();
+            Response<User> res;
+            if (getResponse.code() == 404) {
+                res = idService.getApi().registerUser(userDetails, ts).execute();
+            } else {
+                res = idService.getApi().updateUser(wallet.getAddress(), userDetails, ts).execute();
+            }
+
+            if (res.isSuccessful()) {
+                System.out.println("Registered with ID service as '"+config.getUsername()+"'");
+            } else {
+                System.out.println("Failed to register with ID service: "+res.code()+" - "+res.errorBody());
+            }
+        }
 
         // -- rpc
         HeadlessRPC rpc = new HeadlessRPC(jedisPool, username, ethService);

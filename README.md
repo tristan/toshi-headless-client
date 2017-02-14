@@ -26,6 +26,7 @@ Some configuration keys are optional, and will be pulled from ENV vars if missin
 ```yaml
 server: https://token-chat-service.herokuapp.com # URL of Chat service
 address: '0x...' # Ethereum address, pulled from env var TOKEN_CLIENT_ADDRESS if omitted
+username: '' # username to be registered/updated with the ID server
 seed: # wallet master seed, 12 word phrase, pulled from env var TOKEN_CLIENT_SEED if omitted
 store: store # path to durable storage directory for Signal store
 redis:

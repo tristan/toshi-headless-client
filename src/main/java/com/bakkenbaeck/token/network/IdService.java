@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.network;
 
 
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
@@ -15,31 +16,17 @@ import rx.schedulers.Schedulers;
 
 public class IdService {
 
-    private static IdService instance;
-
     private final IdInterface idInterface;
     private final OkHttpClient.Builder client;
-
-    public static IdInterface getApi() {
-        return get().idInterface;
+    private final HDWallet wallet;
+    public IdInterface getApi() {
+        return this.idInterface;
     }
 
-    private static IdService get() {
-        if (instance == null) {
-            instance = getSync();
-        }
-        return instance;
-    }
+    public IdService(HDWallet wallet) {
+        this.wallet = wallet;
 
-    private static synchronized IdService getSync() {
-        if (instance == null) {
-            instance = new IdService();
-        }
-        return instance;
-    }
-
-    private IdService() {
-        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+        //final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
@@ -51,7 +38,7 @@ public class IdService {
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://token-id-service.herokuapp.com")
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
-                .addCallAdapterFactory(rxAdapter)
+                //.addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
         this.idInterface = retrofit.create(IdInterface.class);
@@ -62,7 +49,7 @@ public class IdService {
     }
 
     private void addSigningInterceptor() {
-        //this.client.addInterceptor(new SigningInterceptor());
+        this.client.addInterceptor(new SigningInterceptor(this.wallet));
     }
 
     private void addLogging() {

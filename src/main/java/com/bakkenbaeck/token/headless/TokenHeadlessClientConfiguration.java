@@ -6,6 +6,7 @@ public final class TokenHeadlessClientConfiguration {
     private String server;
     private String seed;
     private String store;
+    private String username;
     private RedisConfiguration redis;
 
     public String getAddress() {
@@ -38,6 +39,14 @@ public final class TokenHeadlessClientConfiguration {
 
     public void setStore(String store) {
         this.store = store;
+    }
+
+    public String getUsername() {
+        return (username != null) ? username : System.getenv("TOKEN_CLIENT_USERNAME");
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public RedisConfiguration getRedis() {
