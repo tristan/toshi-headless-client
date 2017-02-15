@@ -34,6 +34,33 @@ redis:
   timeout: 2000
 ```
 
+
+### Postgres Configuration
+
+3 different forms are accepted for Postgres configuration:
+
+JDBC url + username/password
+```yaml
+postgres:
+  jdbcUrl: jdbc:postgresql://<host>:<port>/<dbname>
+  port: 5432
+  password: secret
+```
+
+URL
+```yaml
+postgres:
+  url: postgres://<username>:<password>@<host>:<port>/<dbname>
+```
+
+EnvKey (useful for environments such as Heroku that set a fixed env variable whose value is the Postgres uri)
+```yaml
+postgres:
+  envKey: DATABASE_URL
+```
+
+
+
 ### Redis Configuration
 
 3 different forms are accepted for Redis configuration:
@@ -41,10 +68,10 @@ redis:
 URI
 ```yaml
 redis:
-  uri: redis://username:password@hostname:port
+  uri: redis://<username>:<password>@<host>:<port>
 ```
 
-EnvKey (useful for environments such as Heroku that set a fixed env variable whose value is the Redis uri)
+EnvKey
 ```yaml
 redis:
   envKey: REDIS_URL
