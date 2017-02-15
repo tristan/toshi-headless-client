@@ -8,6 +8,7 @@ public final class TokenHeadlessClientConfiguration {
     private String store;
     private String username;
     private RedisConfiguration redis;
+    private PostgresConfiguration postgres;
 
     public String getAddress() {
         return (address != null) ? address : System.getenv("TOKEN_CLIENT_ADDRESS");
@@ -55,5 +56,13 @@ public final class TokenHeadlessClientConfiguration {
 
     public void setRedis(RedisConfiguration redis) {
         this.redis = redis;
+    }
+
+    public PostgresConfiguration getPostgres() {
+        return postgres;
+    }
+
+    public void setPostgres(PostgresConfiguration postgres) {
+        this.postgres = postgres;
     }
 }

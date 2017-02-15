@@ -2,11 +2,13 @@ package com.bakkenbaeck.token.headless;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.headless.db.Postgres;
 import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.headless.signal.Manager;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
+import org.flywaydb.core.Flyway;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -18,6 +20,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +47,15 @@ class TokenHeadlessClient {
             return;
         }
 
+        // -- migrations
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(config.getPostgres().getJdbcUrl(), config.getPostgres().getUsername(), config.getPostgres().getPassword());
+        flyway.migrate();
+
+        // -- Postgres
+        final Postgres db = new Postgres(config.getPostgres());
+        db.connect();
+
         // Workaround for BKS truststore
         Security.insertProviderAt(new org.bouncycastle.jce.provider.BouncyCastleProvider(), 1);
 
@@ -52,7 +66,7 @@ class TokenHeadlessClient {
         final String username = wallet.getAddress();
         final boolean voice = false;
         String settingsPath = config.getStore();
-        Manager m = new Manager(username, settingsPath, config.getServer());
+        Manager m = new Manager(username, settingsPath, config.getServer(), db);
 
 
         // -- redis
@@ -104,13 +118,13 @@ class TokenHeadlessClient {
             }
         }).start();
 
-
         // -- signal
         if (m.userExists()) {
             try {
                 m.init();
             } catch (Exception e) {
-                System.err.println("Error loading state file \"" + m.getFileName() + "\": " + e.getMessage());
+                e.printStackTrace();
+                System.err.println("Error loading state file \"" + m.getFileName() + "\"");
                 return;
             }
         }

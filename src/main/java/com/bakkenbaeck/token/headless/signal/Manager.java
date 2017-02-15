@@ -17,6 +17,7 @@
 package com.bakkenbaeck.token.headless.signal;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.headless.db.Postgres;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -60,8 +61,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,7 +91,6 @@ public class Manager {
     private final String attachmentsPath;
     private final String avatarsPath;
 
-    private FileChannel fileChannel;
     private FileLock lock;
 
     private final ObjectMapper jsonProcessor = new ObjectMapper();
@@ -112,7 +110,10 @@ public class Manager {
     private JsonContactsStore contactStore;
     private JsonThreadStore threadStore;
 
-    public Manager(String username, String settingsPath, String server) {
+    private Postgres db;
+
+    public Manager(String username, String settingsPath, String server, Postgres db) {
+        this.db = db;
         URL = server;
         serviceUrls = new SignalServiceUrl[]{new SignalServiceUrl(URL, TRUST_STORE)};
 
@@ -187,8 +188,7 @@ public class Manager {
         if (username == null) {
             return false;
         }
-        File f = new File(getFileName());
-        return !(!f.exists() || f.isDirectory());
+        return db.exists(username);
     }
 
     public boolean userHasKeys() {
@@ -202,23 +202,6 @@ public class Manager {
         }
 
         return node;
-    }
-
-    private void openFileChannel() throws IOException {
-        if (fileChannel != null)
-            return;
-
-        createPrivateDirectories(dataPath);
-        if (!new File(getFileName()).exists()) {
-            createPrivateFile(getFileName());
-        }
-        fileChannel = new RandomAccessFile(new File(getFileName()), "rw").getChannel();
-        lock = fileChannel.tryLock();
-        if (lock == null) {
-            System.err.println("Config file is in use by another instance, waiting…");
-            lock = fileChannel.lock();
-            System.err.println("Config file lock acquired.");
-        }
     }
 
 
@@ -240,8 +223,7 @@ public class Manager {
     }
 
     private void load() throws IOException {
-        openFileChannel();
-        JsonNode rootNode = jsonProcessor.readTree(Channels.newInputStream(fileChannel));
+        JsonNode rootNode = db.load(username);
 
         JsonNode node = rootNode.get("deviceId");
         if (node != null) {
@@ -327,11 +309,7 @@ public class Manager {
                 .putPOJO("threadStore", threadStore)
         ;
         try {
-            openFileChannel();
-            fileChannel.position(0);
-            jsonProcessor.writeValue(Channels.newOutputStream(fileChannel), rootNode);
-            fileChannel.truncate(fileChannel.position());
-            fileChannel.force(false);
+            db.save(username, rootNode);
         } catch (Exception e) {
             System.err.println(String.format("Error saving file: %s", e.getMessage()));
         }
