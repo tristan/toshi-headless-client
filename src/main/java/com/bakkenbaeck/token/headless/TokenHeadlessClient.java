@@ -9,6 +9,7 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -47,14 +48,24 @@ class TokenHeadlessClient {
             return;
         }
 
-        // -- migrations
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(config.getPostgres().getJdbcUrl(), config.getPostgres().getUsername(), config.getPostgres().getPassword());
-        flyway.migrate();
+        Flyway flyway = null;
+        Postgres db = null;
 
-        // -- Postgres
-        final Postgres db = new Postgres(config.getPostgres());
-        db.connect();
+        while(flyway == null || db == null) {
+            try {
+                // -- migrations
+                flyway = new Flyway();
+                flyway.setDataSource(config.getPostgres().getJdbcUrl(), config.getPostgres().getUsername(), config.getPostgres().getPassword());
+                flyway.migrate();
+
+                // -- Postgres
+                db = new Postgres(config.getPostgres());
+                db.connect();
+            } catch (FlywaySqlException e) {
+                System.out.println("Could not connect to Postgres - retrying");
+                Thread.sleep(2000);
+            }
+        }
 
         // Workaround for BKS truststore
         Security.insertProviderAt(new org.bouncycastle.jce.provider.BouncyCastleProvider(), 1);
