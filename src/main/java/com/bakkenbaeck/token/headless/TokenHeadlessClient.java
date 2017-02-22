@@ -21,9 +21,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,7 +90,9 @@ class TokenHeadlessClient {
         if (config.getUsername() != null && config.getAddress().equals(wallet.getAddress())) {
             UserDetails userDetails = new UserDetails();
             userDetails.setUsername(config.getUsername());
-            userDetails.setWalletAddress(wallet.getWalletAddress());
+            userDetails.setPayment_address(wallet.getWalletAddress());
+            userDetails.setIs_app(true);
+            userDetails.getCustom().setName(config.getUsername());
 
             Response<User> getResponse = idService.getApi().getUser(wallet.getAddress()).execute();
             final long ts = idService.getApi().getTimestamp().execute().body().get();

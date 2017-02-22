@@ -11,46 +11,49 @@ public class UserDetails {
     private String username;
 
     @JsonProperty
-    private CustomPayload custom;
+    private Boolean is_app;
 
-    public UserDetails setWalletAddress(final String address) {
-        initCustom();
-        this.custom.payment_address = address;
-        return this;
+    @JsonProperty
+    private String payment_address;
+
+    @JsonProperty
+    private UserDetailsCustomPayload custom;
+
+    public String getUsername() {
+        return username;
     }
 
-    public UserDetails setUsername(final String username) {
+    public void setUsername(String username) {
         this.username = username;
-        return this;
     }
 
-    public UserDetails setAbout(final String about) {
-        initCustom();
-        this.custom.about = about;
-        return this;
+    public Boolean getIs_app() {
+        return is_app;
     }
 
-    public UserDetails setLocation(final String location) {
-        initCustom();
-        this.custom.location = location;
-        return this;
+    public void setIs_app(Boolean is_app) {
+        this.is_app = is_app;
     }
 
-    private void initCustom() {
-        if (custom == null) {
-            this.custom = new CustomPayload();
-        }
+    public String getPayment_address() {
+        return payment_address;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private static class CustomPayload {
-        @JsonProperty
-        private String about;
-
-        @JsonProperty
-        private String location;
-
-        @JsonProperty
-        private String payment_address;
+    public void setPayment_address(String payment_address) {
+        this.payment_address = payment_address;
     }
+
+    public UserDetailsCustomPayload getCustom() {
+        return custom;
+    }
+
+    public void setCustom(UserDetailsCustomPayload custom) {
+        this.custom = custom;
+    }
+
+    public UserDetails() {
+        this.custom = new UserDetailsCustomPayload();
+    }
+
+
 }
