@@ -37,16 +37,15 @@ class ReceiveMessageHandler implements Manager.ReceiveMessageHandler {
     public void handleMessage(SignalServiceEnvelope envelope, SignalServiceContent content, Throwable exception) {
         SignalServiceAddress source = envelope.getSourceAddress();
         ContactInfo sourceContact = m.getContact(source.getNumber());
-        System.out.println(String.format("Envelope from: %s (device: %d)", (sourceContact == null ? "" : "“" + sourceContact.name + "” ") + source.getNumber(), envelope.getSourceDevice()));
+        //System.out.println(String.format("Envelope from: %s (device: %d)", (sourceContact == null ? "" : "“" + sourceContact.name + "” ") + source.getNumber(), envelope.getSourceDevice()));
         if (source.getRelay().isPresent()) {
             System.out.println("Relayed by: " + source.getRelay().get());
         }
-        System.out.println("Timestamp: " + formatTimestamp(envelope.getTimestamp()));
 
 
 
         if (envelope.isReceipt()) {
-            System.out.println("Got receipt.");
+            //noop
         } else if (envelope.isSignalMessage() | envelope.isPreKeySignalMessage()) {
             if (exception != null) {
                 if (exception instanceof org.whispersystems.libsignal.UntrustedIdentityException) {
@@ -71,35 +70,35 @@ class ReceiveMessageHandler implements Manager.ReceiveMessageHandler {
                     handleSignalServiceDataMessage(message, wrappedSOFA);
                 }
                 if (content.getSyncMessage().isPresent()) {
-                    System.out.println("Received a sync message");
+                    //System.out.println("Received a sync message");
                     SignalServiceSyncMessage syncMessage = content.getSyncMessage().get();
 
                     if (syncMessage.getContacts().isPresent()) {
-                        System.out.println("Received sync contacts");
+                        //System.out.println("Received sync contacts");
                         printAttachment(syncMessage.getContacts().get());
                     }
                     if (syncMessage.getGroups().isPresent()) {
-                        System.out.println("Received sync groups");
+                        //System.out.println("Received sync groups");
                         printAttachment(syncMessage.getGroups().get());
                     }
                     if (syncMessage.getRead().isPresent()) {
-                        System.out.println("Received sync read messages list");
+                        //System.out.println("Received sync read messages list");
                         for (ReadMessage rm : syncMessage.getRead().get()) {
                             ContactInfo fromContact = m.getContact(rm.getSender());
-                            System.out.println("From: " + (fromContact == null ? "" : "“" + fromContact.name + "” ") + rm.getSender() + " Message timestamp: " + formatTimestamp(rm.getTimestamp()));
+                            //System.out.println("From: " + (fromContact == null ? "" : "“" + fromContact.name + "” ") + rm.getSender() + " Message timestamp: " + formatTimestamp(rm.getTimestamp()));
                         }
                     }
                     if (syncMessage.getRequest().isPresent()) {
-                        System.out.println("Received sync request");
+                        //System.out.println("Received sync request");
                         if (syncMessage.getRequest().get().isContactsRequest()) {
-                            System.out.println(" - contacts request");
+                            //System.out.println(" - contacts request");
                         }
                         if (syncMessage.getRequest().get().isGroupsRequest()) {
-                            System.out.println(" - groups request");
+                            //System.out.println(" - groups request");
                         }
                     }
                     if (syncMessage.getSent().isPresent()) {
-                        System.out.println("Received sync sent message");
+                        //System.out.println("Received sync sent message");
                         final SentTranscriptMessage sentTranscriptMessage = syncMessage.getSent().get();
                         String to;
                         if (sentTranscriptMessage.getDestination().isPresent()) {
@@ -109,34 +108,34 @@ class ReceiveMessageHandler implements Manager.ReceiveMessageHandler {
                         } else {
                             to = "Unknown";
                         }
-                        System.out.println("To: " + to + " , Message timestamp: " + formatTimestamp(sentTranscriptMessage.getTimestamp()));
+                        //System.out.println("To: " + to + " , Message timestamp: " + formatTimestamp(sentTranscriptMessage.getTimestamp()));
                         if (sentTranscriptMessage.getExpirationStartTimestamp() > 0) {
-                            System.out.println("Expiration started at: " + formatTimestamp(sentTranscriptMessage.getExpirationStartTimestamp()));
+                            //System.out.println("Expiration started at: " + formatTimestamp(sentTranscriptMessage.getExpirationStartTimestamp()));
                         }
                         SignalServiceDataMessage message = sentTranscriptMessage.getMessage();
                         handleSignalServiceDataMessage(message, wrappedSOFA);
                     }
                     if (syncMessage.getBlockedList().isPresent()) {
-                        System.out.println("Received sync message with block list");
-                        System.out.println("Blocked numbers:");
+                        //System.out.println("Received sync message with block list");
+                        //System.out.println("Blocked numbers:");
                         final BlockedListMessage blockedList = syncMessage.getBlockedList().get();
                         for (String number : blockedList.getNumbers()) {
-                            System.out.println(" - " + number);
+                            //System.out.println(" - " + number);
                         }
                     }
                 }
             }
         } else {
-            System.out.println("Unknown message received.");
+            //System.out.println("Unknown message received.");
         }
-        System.out.println();
+        //System.out.println();
     }
 
     private void handleSignalServiceDataMessage(SignalServiceDataMessage message, SignalWrappedSOFA wrappedSOFA) {
-        System.out.println("Message timestamp: " + formatTimestamp(message.getTimestamp()));
+        //System.out.println("Message timestamp: " + formatTimestamp(message.getTimestamp()));
 
         if (message.getBody().isPresent()) {
-            System.out.println("Body: " + message.getBody().get());
+            //System.out.println("Body: " + message.getBody().get());
             wrappedSOFA.setSofa(message.getBody().get());
             ObjectMapper mapper = new ObjectMapper();
             String wrappedMessage;
@@ -151,41 +150,41 @@ class ReceiveMessageHandler implements Manager.ReceiveMessageHandler {
         }
         if (message.getGroupInfo().isPresent()) {
             SignalServiceGroup groupInfo = message.getGroupInfo().get();
-            System.out.println("Group info:");
-            System.out.println("  Id: " + Base64.encodeBytes(groupInfo.getGroupId()));
+            //System.out.println("Group info:");
+            //System.out.println("  Id: " + Base64.encodeBytes(groupInfo.getGroupId()));
             if (groupInfo.getType() == SignalServiceGroup.Type.UPDATE && groupInfo.getName().isPresent()) {
-                System.out.println("  Name: " + groupInfo.getName().get());
+                //System.out.println("  Name: " + groupInfo.getName().get());
             } else {
                 GroupInfo group = m.getGroup(groupInfo.getGroupId());
                 if (group != null) {
-                    System.out.println("  Name: " + group.name);
+                    //System.out.println("  Name: " + group.name);
                 } else {
-                    System.out.println("  Name: <Unknown group>");
+                    //System.out.println("  Name: <Unknown group>");
                 }
             }
             System.out.println("  Type: " + groupInfo.getType());
             if (groupInfo.getMembers().isPresent()) {
                 for (String member : groupInfo.getMembers().get()) {
-                    System.out.println("  Member: " + member);
+                    //System.out.println("  Member: " + member);
                 }
             }
             if (groupInfo.getAvatar().isPresent()) {
-                System.out.println("  Avatar:");
+                //System.out.println("  Avatar:");
                 printAttachment(groupInfo.getAvatar().get());
             }
         }
         if (message.isEndSession()) {
-            System.out.println("Is end session");
+            //System.out.println("Is end session");
         }
         if (message.isExpirationUpdate()) {
-            System.out.println("Is Expiration update: " + message.isExpirationUpdate());
+            //System.out.println("Is Expiration update: " + message.isExpirationUpdate());
         }
         if (message.getExpiresInSeconds() > 0) {
-            System.out.println("Expires in: " + message.getExpiresInSeconds() + " seconds");
+            //System.out.println("Expires in: " + message.getExpiresInSeconds() + " seconds");
         }
 
         if (message.getAttachments().isPresent()) {
-            System.out.println("Attachments: ");
+            //System.out.println("Attachments: ");
             for (SignalServiceAttachment attachment : message.getAttachments().get()) {
                 printAttachment(attachment);
             }

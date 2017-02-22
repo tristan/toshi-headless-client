@@ -26,15 +26,15 @@ class RedisSubscriber extends JedisPubSub {
 
     @Override
     public void onMessage(String channel, String message) {
-        System.out.println("Redis message received on channel "+channel+": "+message);
+        //System.out.println("Redis message received on channel "+channel+": "+message);
         if (channel.equals(this.manager.getUsername())) {
             try {
                 SignalWrappedSOFA wrapped = mapper.readValue(message, SignalWrappedSOFA.class);
                 if (!wrapped.getSender().equals(manager.getUsername())) {
-                    System.out.println("Ignoring: "+wrapped.getSender()+" is not "+manager.getUsername());
+                    //System.out.println("Ignoring: "+wrapped.getSender()+" is not "+manager.getUsername());
                     return;
                 }
-                System.out.println(wrapped.getSofa());
+                //System.out.println(wrapped.getSofa());
                 List<String> attachments = Arrays.asList();
                 try {
                     manager.sendMessage(wrapped.getSofa(), attachments, wrapped.getRecipient());
