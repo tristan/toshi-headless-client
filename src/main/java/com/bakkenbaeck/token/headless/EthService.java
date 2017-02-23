@@ -12,9 +12,9 @@ public class EthService {
     private final BalanceService balanceService;
     private final HDWallet wallet;
 
-    public EthService(HDWallet wallet) {
+    public EthService(HDWallet wallet, String baseUrl) {
         this.wallet = wallet;
-        this.balanceService = new BalanceService(wallet);
+        this.balanceService = new BalanceService(wallet, baseUrl);
     }
 
     public static byte[] hexStringToByteArray(String s) {

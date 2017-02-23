@@ -23,7 +23,7 @@ public class IdService {
         return this.idInterface;
     }
 
-    public IdService(HDWallet wallet) {
+    public IdService(HDWallet wallet, String baseUrl) {
         this.wallet = wallet;
 
         //final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
@@ -36,7 +36,7 @@ public class IdService {
         final Moshi moshi = new Moshi.Builder().build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://token-id-service.herokuapp.com")
+                .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 //.addCallAdapterFactory(rxAdapter)
                 .client(client.build())

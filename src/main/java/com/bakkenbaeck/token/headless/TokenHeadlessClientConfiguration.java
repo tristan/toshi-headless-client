@@ -4,6 +4,8 @@ package com.bakkenbaeck.token.headless;
 public final class TokenHeadlessClientConfiguration {
     private String address;
     private String server;
+    private String token_ethereum_service_url;
+    private String token_id_service_url;
     private String seed;
     private String store;
     private String username;
@@ -11,7 +13,7 @@ public final class TokenHeadlessClientConfiguration {
     private PostgresConfiguration postgres;
 
     public String getAddress() {
-        return (address != null) ? address : System.getenv("TOKEN_CLIENT_ADDRESS");
+        return (address != null) ? address : System.getenv("TOKEN_APP_ID");
     }
 
     public void setAddress(String address) {
@@ -27,7 +29,7 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getSeed() {
-        return (seed != null) ? seed : System.getenv("TOKEN_CLIENT_SEED");
+        return (seed != null) ? seed : System.getenv("TOKEN_APP_SEED");
     }
 
     public void setSeed(String seed) {
@@ -43,7 +45,7 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getUsername() {
-        return (username != null) ? username : System.getenv("TOKEN_CLIENT_USERNAME");
+        return (username != null) ? username : System.getenv("TOKEN_APP_USERNAME");
     }
 
     public void setUsername(String username) {
@@ -64,5 +66,21 @@ public final class TokenHeadlessClientConfiguration {
 
     public void setPostgres(PostgresConfiguration postgres) {
         this.postgres = postgres;
+    }
+
+    public String getToken_ethereum_service_url() {
+        return token_ethereum_service_url;
+    }
+
+    public void setToken_ethereum_service_url(String token_ethereum_service_url) {
+        this.token_ethereum_service_url = token_ethereum_service_url;
+    }
+
+    public String getToken_id_service_url() {
+        return token_id_service_url;
+    }
+
+    public void setToken_id_service_url(String token_id_service_url) {
+        this.token_id_service_url = token_id_service_url;
     }
 }

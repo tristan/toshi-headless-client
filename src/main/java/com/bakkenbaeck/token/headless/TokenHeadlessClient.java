@@ -82,10 +82,10 @@ class TokenHeadlessClient {
         JedisPool jedisPool = new JedisPool(poolConfig, config.getRedis().getHost(), config.getRedis().getPort(), config.getRedis().getTimeout(), config.getRedis().getPassword());
 
         // -- eth service
-        EthService ethService = new EthService(wallet);
+        EthService ethService = new EthService(wallet, config.getToken_ethereum_service_url());
 
         // -- id service
-        IdService idService = new IdService(wallet);
+        IdService idService = new IdService(wallet, config.getToken_id_service_url());
 
         if (config.getUsername() != null && config.getAddress().equals(wallet.getAddress())) {
             UserDetails userDetails = new UserDetails();

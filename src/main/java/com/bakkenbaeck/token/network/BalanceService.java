@@ -19,7 +19,7 @@ public class BalanceService {
     private final BalanceInterface balanceInterface;
     private final OkHttpClient.Builder client;
 
-    public BalanceService(HDWallet wallet) {
+    public BalanceService(HDWallet wallet, String baseUrl) {
         //final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
         //        .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
@@ -35,7 +35,7 @@ public class BalanceService {
                                     .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://token-eth-service.herokuapp.com/")
+                .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .client(client.build())
                 .build();
