@@ -27,24 +27,22 @@ public class EthService {
         return b;
     }
 
-    public SentTransaction sendEth(String to, String value) throws IOException {
+    public Response<UnsignedTransaction> createTransaction(String to, String value) throws IOException {
         String from = wallet.getWalletAddress();
         TransactionRequest request = new TransactionRequest()
-            .setToAddress(to)
-            .setFromAddress(from)
-            .setValue(value);
-        Response<UnsignedTransaction> response = balanceService.getApi().createTransaction(request).execute();
-        if (response.body() != null) {
-            String utx = response.body().getTransaction();
-            final long ts = balanceService.getApi().getTimestamp().execute().body().get();
-            String signature = this.wallet.signTransaction(utx);
-            final SignedTransaction signedTransaction = new SignedTransaction()
-                    .setEncodedTransaction(utx)
-                    .setSignature(signature);
-            SentTransaction tx = balanceService.getApi().sendSignedTransaction(ts, signedTransaction).execute().body();
-            return tx;
-        }
-        return null;
+                .setToAddress(to)
+                .setFromAddress(from)
+                .setValue(value);
+        return balanceService.getApi().createTransaction(request).execute();
+    }
+
+    public SentTransaction sendTransaction(String utx) throws IOException {
+        final long ts = balanceService.getApi().getTimestamp().execute().body().get();
+        String signature = this.wallet.signTransaction(utx);
+        final SignedTransaction signedTransaction = new SignedTransaction()
+                .setEncodedTransaction(utx)
+                .setSignature(signature);
+        return balanceService.getApi().sendSignedTransaction(ts, signedTransaction).execute().body();
     }
 
 }
