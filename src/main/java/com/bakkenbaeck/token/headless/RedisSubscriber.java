@@ -4,11 +4,13 @@ import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.headless.rpc.entities.HeadlessRPCRequest;
 import com.bakkenbaeck.token.headless.signal.AttachmentInvalidException;
 import com.bakkenbaeck.token.headless.signal.Manager;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.whispersystems.signalservice.api.push.exceptions.EncapsulatedExceptions;
 import redis.clients.jedis.JedisPubSub;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,8 +36,20 @@ class RedisSubscriber extends JedisPubSub {
                     //System.out.println("Ignoring: "+wrapped.getSender()+" is not "+manager.getUsername());
                     return;
                 }
+
+                ObjectMapper mapper = new ObjectMapper();
+                String s = wrapped.getSofa().split("SOFA::\\w+:")[1];
+                JsonNode sofa = mapper.readTree(s);
+                ArrayList<String> attachments = new ArrayList<String>();
+                if (sofa.has("attachments")) {
+                    for (int i = 0; i < sofa.get("attachments").size(); i++) {
+                        String url = sofa.get("attachments").get(i).get("url").asText();
+                        System.out.println(url);
+                        attachments.add(url);
+                    }
+                }
+
                 //System.out.println(wrapped.getSofa());
-                List<String> attachments = Arrays.asList();
                 try {
                     manager.sendMessage(wrapped.getSofa(), attachments, wrapped.getRecipient());
                 } catch (EncapsulatedExceptions encapsulatedExceptions) {

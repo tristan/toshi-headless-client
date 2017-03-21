@@ -10,6 +10,7 @@ import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
+import org.whispersystems.libsignal.logging.SignalProtocolLoggerProvider;
 import org.yaml.snakeyaml.Yaml;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -44,6 +45,8 @@ class TokenHeadlessClient {
             System.out.println( "Error parsing configuration - " + e.getMessage() );
             return;
         }
+
+        SignalProtocolLoggerProvider.setProvider(new HeadlessSignalProtocolLogger());
 
         Flyway flyway = null;
         Postgres db = null;
