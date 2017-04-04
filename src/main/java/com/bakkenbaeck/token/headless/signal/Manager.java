@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.util.TextUtils;
+import org.apache.tika.Tika;
 import org.whispersystems.libsignal.*;
 import org.whispersystems.libsignal.ecc.Curve;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
@@ -75,6 +76,8 @@ import java.util.concurrent.TimeoutException;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
 public class Manager {
+    private final static Tika tika = new Tika();
+
     private final String URL;
     private final static TrustStore TRUST_STORE = new WhisperTrustStore();
     private final SignalServiceUrl[] serviceUrls;
@@ -535,7 +538,8 @@ public class Manager {
     private static SignalServiceAttachmentStream createAttachment(File attachmentFile) throws IOException {
         InputStream attachmentStream = new FileInputStream(attachmentFile);
         final long attachmentSize = attachmentFile.length();
-        String mime = Files.probeContentType(attachmentFile.toPath());
+        String mime = tika.detect(attachmentFile);
+
         if (mime == null) {
             mime = "application/octet-stream";
         }
@@ -1077,7 +1081,19 @@ public class Manager {
                     try {
                         content = decryptMessage(envelope);
                     } catch (Exception e) {
-                        exception = e;
+                        //TODO: Make this overridable in config file
+                        boolean autoAcceptKeys = true;
+                        if (autoAcceptKeys) {
+                            System.err.println("Failed to decrypt message: " + e.getMessage());
+                            trustIdentityAllKeys(envelope.getSource());
+                            try {
+                                content = decryptMessage(envelope);
+                            } catch (Exception eTwo) {
+                                exception = eTwo;
+                            }
+                        } else {
+                            exception = e;
+                        }
                     }
                     handleMessage(envelope, content, ignoreAttachments);
                 }

@@ -41,6 +41,8 @@ dependencies {
         exclude module: 'okhttp'
     }
 
+    compile 'org.apache.tika:tika-core:1.14'
+
     compile 'com.github.spullara.cli-parser:cli-parser:1.1.2'
     compile 'org.bouncycastle:bcprov-jdk15on:1.55'
 
