@@ -9,10 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.whispersystems.signalservice.api.push.exceptions.EncapsulatedExceptions;
 import redis.clients.jedis.JedisPubSub;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 class RedisSubscriber extends JedisPubSub {
    // private static Logger logger = Logger.getLogger(RedisSubscriber.class);
@@ -43,9 +44,13 @@ class RedisSubscriber extends JedisPubSub {
                 ArrayList<String> attachments = new ArrayList<String>();
                 if (sofa.has("attachments")) {
                     for (int i = 0; i < sofa.get("attachments").size(); i++) {
-                        String url = sofa.get("attachments").get(i).get("url").asText();
-                        System.out.println(url);
-                        attachments.add(url);
+                        String url = "attachments/"+sofa.get("attachments").get(i).get("url").asText();
+                        Boolean exists = new File(url).exists();
+                        if (exists) {
+                            attachments.add(url);
+                        } else {
+                            System.out.println("Attachment "+url+" does not exist");
+                        }
                     }
                 }
 
