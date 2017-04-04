@@ -70,12 +70,16 @@ public class HeadlessRPC {
         } else {
             String utx = response.body().getTransaction();
             SentTransaction tx = ethService.sendTransaction(utx);
-            List<TokenError> errors = tx.getErrors();
-            if (errors != null && errors.size() > 0) {
-                error.setMessage(errors.get(0).getMessage());
-                handleResult(request, null, error);
+            if (tx != null) {
+                List<TokenError> errors = tx.getErrors();
+                if (errors != null && errors.size() > 0) {
+                    error.setMessage(errors.get(0).getMessage());
+                    handleResult(request, null, error);
+                } else {
+                    handleResult(request, new SendTransactionResult(tx.getTxHash()), null);
+                }
             } else {
-                handleResult(request, new SendTransactionResult(tx.getTxHash()), null);
+                handleResult(request, null, error);
             }
         }
     }
