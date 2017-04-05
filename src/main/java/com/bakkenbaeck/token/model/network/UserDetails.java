@@ -17,6 +17,12 @@ public class UserDetails {
     private String payment_address;
 
     @JsonProperty
+    private String avatar;
+
+    @JsonProperty
+    private String name;
+
+    @JsonProperty
     private UserDetailsCustomPayload custom;
 
     public String getUsername() {
@@ -25,6 +31,22 @@ public class UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public Boolean getIs_app() {

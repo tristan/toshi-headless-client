@@ -9,6 +9,8 @@ public final class TokenHeadlessClientConfiguration {
     private String seed;
     private String store;
     private String username;
+    private String name;
+    private String avatar;
     private RedisConfiguration redis;
     private PostgresConfiguration postgres;
 
@@ -50,6 +52,22 @@ public final class TokenHeadlessClientConfiguration {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getName() {
+        return (name != null) ? name : System.getenv("TOKEN_APP_NAME");
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar() {
+        return (avatar != null) ? avatar : System.getenv("TOKEN_APP_AVATAR");
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public RedisConfiguration getRedis() {

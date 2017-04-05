@@ -17,8 +17,15 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import retrofit2.Response;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
@@ -95,10 +102,32 @@ class TokenHeadlessClient {
             userDetails.setUsername(config.getUsername());
             userDetails.setPayment_address(wallet.getWalletAddress());
             userDetails.setIs_app(true);
-            userDetails.getCustom().setName(config.getUsername());
+            if (config.getName() != null) {
+                userDetails.setName(config.getName());
+            } else {
+                userDetails.setName(config.getUsername());
+            }
+            String avatar = config.getAvatar();
+            Boolean try_upload_avatar = false;
+            // if the variable points to a URL
+            if (avatar != null) {
+                // make sure the URI is valid
+                try {
+                    URI check = URI.create(avatar);
+                    if (check.getScheme() != null && (check.getScheme() == "http" || check.getScheme() == "https")) {
+                        userDetails.setAvatar(avatar);
+                    } else {
+                        // TODO: if scheme == "file", change `avatar` to match
+                        try_upload_avatar = true;
+                    }
+                } catch (IllegalArgumentException e) {
+                    try_upload_avatar = true;
+                }
+            }
 
             Response<User> getResponse = idService.getApi().getUser(wallet.getAddress()).execute();
             final long ts = idService.getApi().getTimestamp().execute().body().get();
+            final long ts_shift = System.currentTimeMillis() / 1000 - ts;
             Response<User> res;
             if (getResponse.code() == 404) {
                 res = idService.getApi().registerUser(userDetails, ts).execute();
@@ -108,6 +137,31 @@ class TokenHeadlessClient {
 
             if (res.isSuccessful()) {
                 System.out.println("Registered with ID service as '"+config.getUsername()+"'");
+                if (try_upload_avatar) {
+                    // TODO: this is a bit brute forcy, would be nice
+                    // to not have to do this everytime the bot starts
+                    final File file = new File(avatar);
+                    if (file.exists()) {
+                        final String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+                        MediaType mediaType;
+                        if (mimeType != null) {
+                            mediaType = MediaType.parse(mimeType);
+                            final RequestBody requestFile = RequestBody.create(mediaType, file);
+                            final MultipartBody.Part body = MultipartBody.Part.createFormData("Profile-Image-Upload", file.getName(), requestFile);
+                            Response<User> upload_res = idService.getApi().uploadFile(body, System.currentTimeMillis() / 1000 + ts_shift).execute();
+                            if (upload_res.code() == 200) {
+                                System.out.println("Successfully updated avatar");
+                            } else {
+                                System.out.println("WARNING: Failed to updated avatar!");
+                            }
+                        } else {
+                            System.out.println("WARNING: Invalid avatar mimetype");
+                        }
+
+                    } else {
+                        System.out.println("WARNING: unable to process avatar '" + avatar + "'. Not a valid URL or File");
+                    }
+                }
             } else {
                 System.out.println("Failed to register with ID service: "+res.code()+" - "+res.errorBody());
             }
