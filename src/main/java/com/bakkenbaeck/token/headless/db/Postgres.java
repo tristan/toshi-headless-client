@@ -31,7 +31,7 @@ public class Postgres {
     }
 
     public boolean connect() throws SQLException, ClassNotFoundException {
-        if (config.getJdbcUrl().isEmpty() || config.getUsername().isEmpty() || config.getPassword().isEmpty()) {
+        if (config.getJdbcUrl().isEmpty() || config.getUsername().isEmpty()) {
             throw new SQLException("Database credentials missing");
         }
 

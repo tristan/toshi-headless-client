@@ -49,11 +49,17 @@ public final class RedisConfiguration {
         if (uri.getScheme() != null && uri.getScheme().equals("redis")) {
             setHost(uri.getHost());
             setPort(uri.getPort());
-            setPassword(uri.getUserInfo().split(":", 2)[1]);
+            if (uri.getUserInfo() != null && uri.getUserInfo().contains(":")) {
+                setPassword(uri.getUserInfo().split(":", 2)[1]);
+            }
         }
     }
 
     public String getUri() {
-        return "redis://h:"+password+"@"+host+":"+port;
+        if (password != null) {
+            return "redis://h:"+password+"@"+host+":"+port;
+        } else {
+            return "redis://"+host+":"+port;
+        }
     }
 }

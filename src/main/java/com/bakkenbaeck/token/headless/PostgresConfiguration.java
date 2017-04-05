@@ -18,9 +18,20 @@ public class PostgresConfiguration {
         URI dbUri = null;
         try {
             dbUri = new URI(url);
-            this.username = dbUri.getUserInfo().split(":")[0];
-            this.password = dbUri.getUserInfo().split(":")[1];
-            this.jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+            if (dbUri.getUserInfo() != null) {
+                if (dbUri.getUserInfo().contains(":")) {
+                    this.username = dbUri.getUserInfo().split(":")[0];
+                    this.password = dbUri.getUserInfo().split(":")[1];
+                } else {
+                    this.username = dbUri.getUserInfo();
+                    this.password = "";
+                }
+            }
+            int port = dbUri.getPort();
+            if (port == -1) {
+                port = 5432;
+            }
+            this.jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + port + dbUri.getPath();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
