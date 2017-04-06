@@ -76,6 +76,9 @@ import java.util.concurrent.TimeoutException;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
 public class Manager {
+    //TODO: Make this overridable in config file
+    private final static boolean autoAcceptKeys = true;
+
     private final static Tika tika = new Tika();
 
     private final String URL;
@@ -838,8 +841,18 @@ public class Manager {
                     try {
                         messageSender.sendMessage(address, message);
                     } catch (UntrustedIdentityException e) {
-                        signalProtocolStore.saveIdentity(e.getE164Number(), e.getIdentityKey(), TrustLevel.UNTRUSTED);
-                        untrustedIdentities.add(e);
+                        if (autoAcceptKeys) {
+                            signalProtocolStore.saveIdentity(e.getE164Number(), e.getIdentityKey(), TrustLevel.TRUSTED_UNVERIFIED);
+                            try {
+                                messageSender.sendMessage(address, message);
+                            } catch (UntrustedIdentityException eTwo) {
+                                signalProtocolStore.saveIdentity(e.getE164Number(), e.getIdentityKey(), TrustLevel.UNTRUSTED);
+                                untrustedIdentities.add(e);
+                            }
+                        } else {
+                            signalProtocolStore.saveIdentity(e.getE164Number(), e.getIdentityKey(), TrustLevel.UNTRUSTED);
+                            untrustedIdentities.add(e);
+                        }
                     } catch (UnregisteredUserException e) {
                         unregisteredUsers.add(e);
                     } catch (PushNetworkException e) {
@@ -1081,10 +1094,8 @@ public class Manager {
                     try {
                         content = decryptMessage(envelope);
                     } catch (Exception e) {
-                        //TODO: Make this overridable in config file
-                        boolean autoAcceptKeys = true;
                         if (autoAcceptKeys) {
-                            System.err.println("Failed to decrypt message: " + e.getMessage());
+                            System.err.println("Accepting new identity and retrying decryption");
                             trustIdentityAllKeys(envelope.getSource());
                             try {
                                 content = decryptMessage(envelope);
