@@ -163,7 +163,9 @@ class TokenHeadlessClient {
                     }
                 }
             } else {
-                System.out.println("Failed to register with ID service: "+res.code()+" - "+res.errorBody());
+                logger.log(Level.SEVERE, "Failed to register with ID service: "+res.code()+" - "+res.errorBody().string());
+                // abort if registration fails
+                return;
             }
         }
 
