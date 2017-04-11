@@ -8,7 +8,7 @@ class WhisperTrustStore implements TrustStore {
 
     @Override
     public InputStream getKeyStoreInputStream() {
-        return WhisperTrustStore.class.getResourceAsStream("heroku.store");
+        return WhisperTrustStore.class.getResourceAsStream("token.store");
     }
 
     @Override
