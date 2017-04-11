@@ -130,9 +130,9 @@ class TokenHeadlessClient {
             final long ts_shift = System.currentTimeMillis() / 1000 - ts;
             Response<User> res;
             if (getResponse.code() == 404) {
-                res = idService.getApi().registerUser(userDetails, ts).execute();
+                res = idService.getApi().registerUser(userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
             } else {
-                res = idService.getApi().updateUser(wallet.getAddress(), userDetails, ts).execute();
+                res = idService.getApi().updateUser(wallet.getAddress(), userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
             }
 
             if (res.isSuccessful()) {
