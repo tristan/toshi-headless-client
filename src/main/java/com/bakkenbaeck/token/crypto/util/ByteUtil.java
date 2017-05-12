@@ -175,6 +175,17 @@ public class ByteUtil {
         return data == null ? "" : Hex.toHexString(data);
     }
 
+    public static String toZeroPaddedHexString(final byte[] data, final int size) {
+        final String hex = toHexString(data);
+        final StringBuffer sb = new StringBuffer("");
+        final int requiredPadding = size - hex.length();
+        while (sb.length() < requiredPadding) {
+            sb.append("0");
+        }
+        sb.append(hex);
+        return sb.toString();
+    }
+
     /**
      * Calculate packet length
      *
