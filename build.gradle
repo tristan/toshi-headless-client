@@ -50,7 +50,8 @@ dependencies {
     compile 'org.bouncycastle:bcprov-jdk15on:1.55'
 
     compile 'org.postgresql:postgresql:9.4.1212'
-    compile 'org.flywaydb:flyway-core:4.1.0'
+    compile 'org.xerial:sqlite-jdbc:3.7.2'
+    compile 'org.flywaydb:flyway-core:4.2.0'
 
     compile 'com.squareup.okhttp3:okhttp:3.5.0'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'

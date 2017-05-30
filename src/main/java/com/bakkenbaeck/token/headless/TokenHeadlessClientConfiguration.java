@@ -13,7 +13,7 @@ public final class TokenHeadlessClientConfiguration {
     private String name;
     private String avatar;
     private RedisConfiguration redis;
-    private PostgresConfiguration postgres;
+    private StorageConfiguration storage;
 
     public String getAddress() {
         return (address != null) ? address : System.getenv("TOKEN_APP_ID");
@@ -87,12 +87,12 @@ public final class TokenHeadlessClientConfiguration {
         this.redis = redis;
     }
 
-    public PostgresConfiguration getPostgres() {
-        return postgres;
+    public StorageConfiguration getStorage() {
+        return storage;
     }
 
-    public void setPostgres(PostgresConfiguration postgres) {
-        this.postgres = postgres;
+    public void setStorage(StorageConfiguration storage) {
+        this.storage = storage;
     }
 
     public String getToken_ethereum_service_url() {

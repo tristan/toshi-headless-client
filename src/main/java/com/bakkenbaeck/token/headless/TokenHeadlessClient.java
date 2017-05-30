@@ -2,7 +2,9 @@ package com.bakkenbaeck.token.headless;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.headless.db.Store;
 import com.bakkenbaeck.token.headless.db.Postgres;
+import com.bakkenbaeck.token.headless.db.Sqlite;
 import com.bakkenbaeck.token.headless.rpc.HeadlessRPC;
 import com.bakkenbaeck.token.headless.signal.Manager;
 import com.bakkenbaeck.token.model.local.User;
@@ -56,21 +58,40 @@ class TokenHeadlessClient {
         SignalProtocolLoggerProvider.setProvider(new HeadlessSignalProtocolLogger());
 
         Flyway flyway = null;
-        Postgres db = null;
+        Store db = null;
 
-        while(flyway == null || db == null) {
-            try {
-                // -- migrations
-                flyway = new Flyway();
-                flyway.setDataSource(config.getPostgres().getJdbcUrl(), config.getPostgres().getUsername(), config.getPostgres().getPassword());
-                flyway.migrate();
+        StorageConfiguration storageConfig = config.getStorage();
 
-                // -- Postgres
-                db = new Postgres(config.getPostgres());
-                db.connect();
-            } catch (FlywaySqlException e) {
-                System.out.println("Could not connect to Postgres - retrying");
-                Thread.sleep(2000);
+        if (storageConfig.getSqlite() != null) {
+            SqliteConfiguration sqliteconfig = storageConfig.getSqlite();
+            // -- migrations
+            // TODO: figure out why this doesn't work!
+            // flyway = new Flyway();
+            // flyway.setDataSource(sqliteconfig.getJdbcUrl(), "", "");
+            // flyway.setLocations("db/migration/sqlite");
+            // flyway.migrate();
+
+            db = new Sqlite(sqliteconfig);
+            ((Sqlite)db).connect();
+            // XXX: remove this is the flyway migration issue is solved
+            ((Sqlite)db).executeResourceScript("db/migration/sqlite/V1__Initial_model.sql");
+        } else if (storageConfig.getPostgres() != null) {
+            PostgresConfiguration pgconfig = storageConfig.getPostgres();
+            while(flyway == null || db == null) {
+                try {
+                    // -- migrations
+                    flyway = new Flyway();
+                    flyway.setDataSource(pgconfig.getJdbcUrl(), pgconfig.getUsername(), pgconfig.getPassword());
+                    flyway.setLocations("db/migration/psql");
+                    flyway.migrate();
+
+                    // -- Postgres
+                    db = new Postgres(pgconfig);
+                    ((Postgres)db).connect();
+                } catch (FlywaySqlException e) {
+                    System.out.println("Could not connect to Postgres - retrying");
+                    Thread.sleep(2000);
+                }
             }
         }
 
@@ -130,6 +151,7 @@ class TokenHeadlessClient {
             Response<User> getResponse = idService.getApi().getUser(wallet.getAddress()).execute();
             final long ts = idService.getApi().getTimestamp().execute().body().get();
             final long ts_shift = System.currentTimeMillis() / 1000 - ts;
+            System.out.println("Timestamp shift: " + ts_shift);
             Response<User> res;
             if (getResponse.code() == 404) {
                 res = idService.getApi().registerUser(userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
