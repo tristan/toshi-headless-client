@@ -1,6 +1,6 @@
 package com.bakkenbaeck.token.headless.db;
 
-import com.bakkenbaeck.token.headless.PostgresConfiguration;
+import com.bakkenbaeck.token.headless.SqliteConfiguration;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -10,17 +10,25 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.postgresql.util.PGobject;
+
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+// import org.sqlite.SQLiteConfig;
+// import org.sqlite.SQLiteDataSource;
+// import org.sqlite.SQLiteOpenMode;
 
 import java.io.IOException;
 import java.sql.*;
 
-public class Postgres implements Store {
+public class Sqlite implements Store {
     private final ObjectMapper jsonProcessor = new ObjectMapper();
     private Connection conn;
-    PostgresConfiguration config;
+    SqliteConfiguration config;
 
-    public Postgres(PostgresConfiguration config) {
+    public Sqlite(SqliteConfiguration config) {
         this.config = config;
         jsonProcessor.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE); // disable autodetect
         jsonProcessor.enable(SerializationFeature.INDENT_OUTPUT); // for pretty print, you can disable it.
@@ -30,16 +38,22 @@ public class Postgres implements Store {
         jsonProcessor.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
     }
 
+    // public SQLiteDataSource getDataSource() {
+    //     SQLiteConfig config = new SQLiteConfig();
+    //     //config.setJournalMode(SQLiteConfig.JournalMode.WAL);
+    //     config.setSynchronous(SQLiteConfig.SynchronousMode.NORMAL);
+    //     SQLiteDataSource dataSource = new SQLiteDataSource(config);
+    //     dataSource.setUrl(this.config.getJdbcUrl());
+    //     return dataSource;
+    // }
+
     public boolean connect() throws SQLException, ClassNotFoundException {
-        if (config.getJdbcUrl().isEmpty() || config.getUsername().isEmpty()) {
+        if (config.getJdbcUrl().isEmpty()) {
             throw new SQLException("Database credentials missing");
         }
 
-        Class.forName("org.postgresql.Driver");
-        this.conn = DriverManager.getConnection(
-                this.config.getJdbcUrl(),
-                this.config.getUsername(),
-                this.config.getPassword());
+        Class.forName("org.sqlite.JDBC");
+        this.conn = DriverManager.getConnection(this.config.getJdbcUrl());
         return true;
     }
 
@@ -70,9 +84,6 @@ public class Postgres implements Store {
     public void save(String eth_address, JsonNode rootNode) {
         try {
             String json = jsonProcessor.writeValueAsString(rootNode);
-            PGobject jsonObject = new PGobject();
-            jsonObject.setType("json");
-            jsonObject.setValue(json);
             PreparedStatement st = null;
             if (exists(eth_address)) {
                 st = conn.prepareStatement("UPDATE signal_store SET data=? WHERE eth_address=?");
@@ -80,7 +91,7 @@ public class Postgres implements Store {
                 st = conn.prepareStatement("INSERT INTO signal_store (data, eth_address) VALUES (?,?)");
 
             }
-            st.setObject(1, jsonObject);
+            st.setString(1, json);
             st.setString(2, eth_address);
             int rc = st.executeUpdate();
         } catch (SQLException | JsonProcessingException e) {
@@ -102,6 +113,38 @@ public class Postgres implements Store {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public void executeResourceScript(String resourceFilename) {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceFilename);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+
+            // TODO: must be a nicer way of doing this!
+            ArrayList<String> sqls = new ArrayList<String>();
+            String insql = "";
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                insql += line + "\n";
+                if (line.endsWith(";")) {
+                    sqls.add(insql);
+                    insql = "";
+                }
+            }
+            for (String sql: sqls) {
+                PreparedStatement st = conn.prepareStatement(sql);
+                boolean results = st.execute();
+                while (results) {
+                    results = st.getMoreResults();
+                    System.out.println(".");
+                }
+                st.close();
+            }
+
+        } catch (IOException x) {
+            System.err.println(x);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }
