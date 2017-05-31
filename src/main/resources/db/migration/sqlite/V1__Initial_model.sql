@@ -9,3 +9,10 @@ CREATE TABLE IF NOT EXISTS signal_store (
     data TEXT,
     PRIMARY KEY(eth_address)
 );
+
+CREATE TABLE IF NOT EXISTS key_value_store (
+    key TEXT,
+    value TEXT,
+    type TEXT,
+    PRIMARY KEY(key)
+);
