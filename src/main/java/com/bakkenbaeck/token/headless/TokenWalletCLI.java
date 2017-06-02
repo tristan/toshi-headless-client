@@ -40,7 +40,7 @@ class TokenWalletCLI {
             }
         } else {
             System.out.println("Seed: " + wallet.getMasterSeed());
-            System.out.println("Address: " + wallet.getAddress());
+            System.out.println("Address: " + wallet.getOwnerAddress());
         }
 
     }

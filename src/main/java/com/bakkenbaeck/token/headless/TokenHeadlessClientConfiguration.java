@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.headless;
 
 
 public final class TokenHeadlessClientConfiguration {
-    private String address;
     private String server;
     private String token_ethereum_service_url;
     private String token_id_service_url;
@@ -13,14 +12,13 @@ public final class TokenHeadlessClientConfiguration {
     private String name;
     private String avatar;
     private RedisConfiguration redis;
-    private PostgresConfiguration postgres;
+    private StorageConfiguration storage;
 
-    public String getAddress() {
-        return (address != null) ? address : System.getenv("TOKEN_APP_ID");
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    private String stripQuotes(String input) {
+        if (input != null && (input.startsWith("\"") && input.endsWith("\"")) || (input.startsWith("'") && input.endsWith("'"))) {
+            input = input.substring(1, input.length() - 1);
+        }
+        return input;
     }
 
     public String getServer() {
@@ -32,11 +30,15 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getSeed() {
-        return (seed != null) ? seed : System.getenv("TOKEN_APP_SEED");
+        if (this.seed == null) {
+            String seed = System.getenv("TOKEN_APP_SEED");
+            this.seed = stripQuotes(seed);
+        }
+        return this.seed;
     }
 
     public void setSeed(String seed) {
-        this.seed = seed;
+        this.seed = stripQuotes(seed);
     }
 
     public String getStore() {
@@ -56,19 +58,27 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getUsername() {
-        return (username != null) ? username : System.getenv("TOKEN_APP_USERNAME");
+        if (this.username == null) {
+            String username = System.getenv("TOKEN_APP_USERNAME");
+            this.username = stripQuotes(username);
+        }
+        return this.username;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = stripQuotes(username);
     }
 
     public String getName() {
-        return (name != null) ? name : System.getenv("TOKEN_APP_NAME");
+        if (this.name == null) {
+            String name = System.getenv("TOKEN_APP_NAME");
+            this.name = stripQuotes(name);
+        }
+        return this.name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = stripQuotes(name);
     }
 
     public String getAvatar() {
@@ -87,12 +97,12 @@ public final class TokenHeadlessClientConfiguration {
         this.redis = redis;
     }
 
-    public PostgresConfiguration getPostgres() {
-        return postgres;
+    public StorageConfiguration getStorage() {
+        return storage;
     }
 
-    public void setPostgres(PostgresConfiguration postgres) {
-        this.postgres = postgres;
+    public void setStorage(StorageConfiguration storage) {
+        this.storage = storage;
     }
 
     public String getToken_ethereum_service_url() {

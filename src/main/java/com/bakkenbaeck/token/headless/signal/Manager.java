@@ -17,7 +17,7 @@
 package com.bakkenbaeck.token.headless.signal;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.headless.db.Postgres;
+import com.bakkenbaeck.token.headless.db.Store;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -115,9 +115,9 @@ public class Manager {
     private JsonContactsStore contactStore;
     private JsonThreadStore threadStore;
 
-    private Postgres db;
+    private Store db;
 
-    public Manager(String username, String settingsPath, String server, Postgres db, String trustStoreName) {
+    public Manager(String username, String settingsPath, String server, Store db, String trustStoreName) {
         this.db = db;
         URL = server;
         serviceUrls = new SignalServiceUrl[]{new SignalServiceUrl(URL, new WhisperTrustStore(trustStoreName))};
