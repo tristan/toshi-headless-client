@@ -34,6 +34,7 @@ import java.security.Security;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 class TokenHeadlessClient {
     private static TokenHeadlessClientConfiguration config;
@@ -98,16 +99,20 @@ class TokenHeadlessClient {
         // Workaround for BKS truststore
         Security.insertProviderAt(new org.bouncycastle.jce.provider.BouncyCastleProvider(), 1);
 
-        HDWallet wallet = new HDWallet().init(config.getSeed());
-        System.out.println("ID Address: " + wallet.getAddress());
-        System.out.println("Wallet Address: " + wallet.getWalletAddress());
+        String seed = config.getSeed();
+        // validate seed
+        if (seed == null || !Pattern.compile("^[a-z ]+$").matcher(seed).matches()) {
+            System.out.println("Invalid Mnemonic Seed value");
+            return;
+        }
+        HDWallet wallet = new HDWallet().init(seed);
+        System.out.println("ID Address: " + wallet.getOwnerAddress());
+        System.out.println("Payment Address: " + wallet.getPaymentAddress());
 
-        final String username = wallet.getAddress();
-        final boolean voice = false;
+        //final boolean voice = false;
         String settingsPath = config.getStore();
         String trustStoreName = ("development".equals(config.getStage())) ? "heroku.store" : "token.store";
-        System.out.println("Trust Store Name: " + trustStoreName);
-        Manager m = new Manager(username, settingsPath, config.getServer(), db, trustStoreName);
+        Manager m = new Manager(wallet.getOwnerAddress(), settingsPath, config.getServer(), db, trustStoreName);
 
 
         // -- redis
@@ -120,10 +125,16 @@ class TokenHeadlessClient {
         // -- id service
         IdService idService = new IdService(wallet, config.getToken_id_service_url());
 
-        if (config.getUsername() != null && config.getAddress().equals(wallet.getAddress())) {
+        final String username = config.getUsername();
+        if (username == null || !Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]{2,59}$").matcher(username).matches()) {
+            System.out.println("Invalid Username: usernames must be at least 3 characters, must start with a letter (a-z), and contain only letters (a-z) numbers (0-9) and underscores (_).");
+            return;
+        }
+
+        if (config.getUsername() != null) {
             UserDetails userDetails = new UserDetails();
             userDetails.setUsername(config.getUsername());
-            userDetails.setPayment_address(wallet.getWalletAddress());
+            userDetails.setPayment_address(wallet.getPaymentAddress());
             userDetails.setIs_app(true);
             if (config.getName() != null) {
                 userDetails.setName(config.getName());
@@ -148,15 +159,14 @@ class TokenHeadlessClient {
                 }
             }
 
-            Response<User> getResponse = idService.getApi().getUser(wallet.getAddress()).execute();
+            Response<User> getResponse = idService.getApi().getUser(wallet.getOwnerAddress()).execute();
             final long ts = idService.getApi().getTimestamp().execute().body().get();
             final long ts_shift = System.currentTimeMillis() / 1000 - ts;
-            System.out.println("Timestamp shift: " + ts_shift);
             Response<User> res;
             if (getResponse.code() == 404) {
                 res = idService.getApi().registerUser(userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
             } else {
-                res = idService.getApi().updateUser(wallet.getAddress(), userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
+                res = idService.getApi().updateUser(wallet.getOwnerAddress(), userDetails, System.currentTimeMillis() / 1000 + ts_shift).execute();
             }
 
             if (res.isSuccessful()) {

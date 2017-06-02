@@ -30,7 +30,7 @@ public class TokenSignalServiceAccountManager {
         String url = serviceUrl.getUrl()+"/v1/accounts/";
         final String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 
-        final String idAddress = wallet.getAddress();
+        final String idAddress = wallet.getOwnerAddress();
 
         String verb = "PUT";
         String path = "/v1/accounts/";

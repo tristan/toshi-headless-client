@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.headless;
 
 
 public final class TokenHeadlessClientConfiguration {
-    private String address;
     private String server;
     private String token_ethereum_service_url;
     private String token_id_service_url;
@@ -15,14 +14,6 @@ public final class TokenHeadlessClientConfiguration {
     private RedisConfiguration redis;
     private StorageConfiguration storage;
 
-    public String getAddress() {
-        return (address != null) ? address : System.getenv("TOKEN_APP_ID");
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getServer() {
         return server;
     }
@@ -32,7 +23,17 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getSeed() {
-        return (seed != null) ? seed : System.getenv("TOKEN_APP_SEED");
+        if (this.seed == null) {
+            String seed = System.getenv("TOKEN_APP_SEED");
+            if (seed != null) {
+                // strip any quotes around the seed
+                if ((seed.startsWith("\"") && seed.endsWith("\"")) || (seed.startsWith("'") && seed.endsWith("'"))) {
+                    seed = seed.substring(1, seed.length() - 1);
+                }
+                this.seed = seed;
+            }
+        }
+        return this.seed;
     }
 
     public void setSeed(String seed) {

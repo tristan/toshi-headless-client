@@ -28,7 +28,7 @@ public class EthService {
     }
 
     public Response<UnsignedTransaction> createTransaction(String to, String value) throws IOException {
-        String from = wallet.getWalletAddress();
+        String from = wallet.getPaymentAddress();
         TransactionRequest request = new TransactionRequest()
                 .setToAddress(to)
                 .setFromAddress(from)
