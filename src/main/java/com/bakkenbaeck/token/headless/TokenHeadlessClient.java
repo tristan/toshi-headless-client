@@ -204,7 +204,7 @@ class TokenHeadlessClient {
         }
 
         // -- rpc
-        HeadlessRPC rpc = new HeadlessRPC(jedisPool, username, ethService);
+        HeadlessRPC rpc = new HeadlessRPC(jedisPool, wallet.getOwnerAddress(), ethService);
 
 
         final RedisSubscriber subscriber = new RedisSubscriber(rpc, m);
@@ -213,7 +213,7 @@ class TokenHeadlessClient {
             public void run() {
                 Jedis subscriberJedis = new Jedis(config.getRedis().getUri());
                 try {
-                    subscriberJedis.subscribe(subscriber, username, username+"_rpc_request");
+                    subscriberJedis.subscribe(subscriber, wallet.getOwnerAddress(), wallet.getOwnerAddress()+"_rpc_request");
                     System.out.println("Subscription ended.");
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Subscribing failed.", e);
@@ -252,7 +252,7 @@ class TokenHeadlessClient {
         boolean returnOnTimeout = false;
         boolean ignoreAttachments = true;
         try {
-            m.receiveMessages((long) (timeout * 1000), TimeUnit.MILLISECONDS, returnOnTimeout, ignoreAttachments, new ReceiveMessageHandler(m, jedisPool, username));
+            m.receiveMessages((long) (timeout * 1000), TimeUnit.MILLISECONDS, returnOnTimeout, ignoreAttachments, new ReceiveMessageHandler(m, jedisPool, wallet.getOwnerAddress()));
         } catch (IOException e) {
             System.err.println("Error while receiving messages: " + e.getMessage());
             return;
