@@ -14,6 +14,13 @@ public final class TokenHeadlessClientConfiguration {
     private RedisConfiguration redis;
     private StorageConfiguration storage;
 
+    private String stripQuotes(String input) {
+        if (input != null && (input.startsWith("\"") && input.endsWith("\"")) || (input.startsWith("'") && input.endsWith("'"))) {
+            input = input.substring(1, input.length() - 1);
+        }
+        return input;
+    }
+
     public String getServer() {
         return server;
     }
@@ -25,19 +32,13 @@ public final class TokenHeadlessClientConfiguration {
     public String getSeed() {
         if (this.seed == null) {
             String seed = System.getenv("TOKEN_APP_SEED");
-            if (seed != null) {
-                // strip any quotes around the seed
-                if ((seed.startsWith("\"") && seed.endsWith("\"")) || (seed.startsWith("'") && seed.endsWith("'"))) {
-                    seed = seed.substring(1, seed.length() - 1);
-                }
-                this.seed = seed;
-            }
+            this.seed = stripQuotes(seed);
         }
         return this.seed;
     }
 
     public void setSeed(String seed) {
-        this.seed = seed;
+        this.seed = stripQuotes(seed);
     }
 
     public String getStore() {
@@ -57,19 +58,27 @@ public final class TokenHeadlessClientConfiguration {
     }
 
     public String getUsername() {
-        return (username != null) ? username : System.getenv("TOKEN_APP_USERNAME");
+        if (this.username == null) {
+            String username = System.getenv("TOKEN_APP_USERNAME");
+            this.username = stripQuotes(username);
+        }
+        return this.username;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = stripQuotes(username);
     }
 
     public String getName() {
-        return (name != null) ? name : System.getenv("TOKEN_APP_NAME");
+        if (this.name == null) {
+            String name = System.getenv("TOKEN_APP_NAME");
+            this.name = stripQuotes(name);
+        }
+        return this.name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = stripQuotes(name);
     }
 
     public String getAvatar() {
