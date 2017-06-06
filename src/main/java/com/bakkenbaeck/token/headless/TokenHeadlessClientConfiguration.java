@@ -15,7 +15,7 @@ public final class TokenHeadlessClientConfiguration {
     private StorageConfiguration storage;
 
     private String stripQuotes(String input) {
-        if (input != null && (input.startsWith("\"") && input.endsWith("\"")) || (input.startsWith("'") && input.endsWith("'"))) {
+        if (input != null && ((input.startsWith("\"") && input.endsWith("\"")) || (input.startsWith("'") && input.endsWith("'")))) {
             input = input.substring(1, input.length() - 1);
         }
         return input;
