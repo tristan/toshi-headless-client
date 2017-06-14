@@ -85,6 +85,17 @@ redis:
   password: secret
 ```
 
+### Pinned certificate update
+
+```
+./cert-gen.sh
+```
+
+##### From specific `.pem` file
+
+```
+CERTFILE=cert.pem ./cert-gen.sh
+```
 
 ## Licence
 
