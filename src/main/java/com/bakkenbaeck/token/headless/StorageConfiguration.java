@@ -4,9 +4,21 @@ public class StorageConfiguration {
 
     private PostgresConfiguration postgres;
     private SqliteConfiguration sqlite;
+    private String sslmode;
 
     public PostgresConfiguration getPostgres() {
         return postgres;
+    }
+
+    public String getSslmode() {
+        return this.sslmode;
+    }
+
+    public void setSslmode(String sslmode) {
+        this.sslmode = sslmode;
+        if (this.postgres != null) {
+            this.postgres.setSslmode(sslmode);
+        }
     }
 
     public void setPostgres(PostgresConfiguration postgres) {
@@ -25,6 +37,9 @@ public class StorageConfiguration {
         String url = System.getenv(envKey);
         if (url.startsWith("postgres://") || url.startsWith("postgresql://")) {
             this.postgres = new PostgresConfiguration();
+            if (this.sslmode != null) {
+                this.postgres.setSslmode(this.sslmode);
+            }
             this.postgres.setUrl(url);
         } else if (url.startsWith("sqlite://")) {
             this.sqlite = new SqliteConfiguration();

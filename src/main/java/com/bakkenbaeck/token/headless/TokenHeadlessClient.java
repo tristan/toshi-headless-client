@@ -90,7 +90,9 @@ class TokenHeadlessClient {
                     db = new Postgres(pgconfig);
                     ((Postgres)db).connect();
                 } catch (FlywaySqlException e) {
-                    System.out.println("Could not connect to Postgres - retrying");
+                    System.err.println("Could not connect to Postgres");
+                    System.err.println(e.getCause().getMessage());
+                    System.err.println("retrying...");
                     Thread.sleep(2000);
                 }
             }
