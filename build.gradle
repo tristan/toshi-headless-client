@@ -8,8 +8,8 @@ apply plugin: 'maven'
 
 mainClassName = 'com.bakkenbaeck.token.headless.TokenHeadlessClient'
 
-group = 'com.github.tokenbrowser'
-version '0.1.3'
+group = 'com.github.toshiapp'
+version '0.1.4'
 
 compileJava.options.encoding = 'UTF-8'
 
@@ -29,7 +29,7 @@ jar {
     }
 }
 
-task TokenHeadlessClientCapsule(type: FatCapsule) {
+task ToshiHeadlessClientCapsule(type: FatCapsule) {
     applicationClass 'com.bakkenbaeck.token.headless.TokenHeadlessClient'
 }
 

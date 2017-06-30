@@ -1,6 +1,6 @@
-# Token Headless Client
+# Toshi Headless Client
 
-The headless client for connecting to the [Token platform](https://www.tokenbrowser.com)
+The headless client for connecting to the [Toshi platform](https://www.toshi.org)
 
 The headless client is a full client for the Chat service that exposes a control
 interface via Redis pubsub. It is primarily intended for use by bots.
@@ -9,14 +9,14 @@ interface via Redis pubsub. It is primarily intended for use by bots.
 ## Building executable fat jar
 
 ```bash
-> gradle TokenHeadlessClientCapsule
-> #path: build/libs/token-headless-1.0-SNAPSHOT-capsule.jar
+> gradle ToshiHeadlessClientCapsule
+> #path: build/libs/toshi-headless-1.0-SNAPSHOT-capsule.jar
 ```
 
 
 ## Running
 ```bash
-> java -jar build/libs/token-headless-1.0-SNAPSHOT-capsule.jar path/to/config.yml
+> java -jar build/libs/toshi-headless-1.0-SNAPSHOT-capsule.jar path/to/config.yml
 ```
 
 ## Configuring
