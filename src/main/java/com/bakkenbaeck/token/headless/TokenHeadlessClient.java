@@ -211,7 +211,7 @@ class TokenHeadlessClient {
             public void run() {
                 Jedis subscriberJedis = new Jedis(config.getRedis().getUri());
                 try {
-                    subscriberJedis.subscribe(subscriber, wallet.getOwnerAddress(), wallet.getOwnerAddress()+"_rpc_request");
+                    subscriberJedis.subscribe(subscriber, wallet.getOwnerAddress(), wallet.getOwnerAddress() + "_rpc_request");
                     System.out.println("Subscription ended.");
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Subscribing failed.", e);

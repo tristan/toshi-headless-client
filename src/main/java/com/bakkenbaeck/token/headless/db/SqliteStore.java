@@ -106,7 +106,7 @@ public class SqliteStore implements Store {
             }
 
         } catch (IOException x) {
-            System.err.println(x);
+            x.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -707,14 +707,18 @@ public class Manager {
                             try {
                                 messageSender.sendMessage(address, message);
                             } catch (UntrustedIdentityException eTwo) {
-                                untrustedIdentities.add(e);
+                                System.err.println("UntrustedIdentityException sending message to: " + address.getNumber());
+                                untrustedIdentities.add(eTwo);
                             }
                         } else {
                             untrustedIdentities.add(e);
                         }
                     } catch (UnregisteredUserException e) {
+                        System.err.println("UnregisteredUserException sending message to: " + address.getNumber());
                         unregisteredUsers.add(e);
                     } catch (PushNetworkException e) {
+                        System.err.println("PushNetworkException sending message to: " + address.getNumber());
+                        e.printStackTrace();
                         networkExceptions.add(new NetworkFailureException(address.getNumber(), e));
                     }
                 }
