@@ -50,7 +50,7 @@ dependencies {
 
     compile 'org.slf4j:slf4j-simple:1.7.25'
     compile 'org.yaml:snakeyaml:1.17'
-    compile 'org.whispersystems:signal-service-java:2.5.11'
+    compile 'org.whispersystems:signal-service-java:2.5.16'
     compile 'redis.clients:jedis:2.9.0'
     compile('org.bitcoinj:bitcoinj-core:0.14.3') {
         exclude module: 'okhttp'

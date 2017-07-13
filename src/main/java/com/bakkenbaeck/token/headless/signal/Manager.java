@@ -374,7 +374,7 @@ public class Manager {
         PreKeyRecord lastResortKey = getOrGenerateLastResortPreKey();
         SignedPreKeyRecord signedPreKeyRecord = generateSignedPreKey(signalProtocolStore.getIdentityKeyPair());
 
-        accountManager.setPreKeys(signalProtocolStore.getIdentityKeyPair().getPublicKey(), lastResortKey, signedPreKeyRecord, oneTimePreKeys);
+        accountManager.setPreKeys(signalProtocolStore.getIdentityKeyPair().getPublicKey(), signedPreKeyRecord, oneTimePreKeys);
     }
 
 
@@ -1282,7 +1282,8 @@ public class Manager {
                 DeviceContactsOutputStream out = new DeviceContactsOutputStream(fos);
                 for (ContactInfo record : contactStore.getContacts()) {
                     out.write(new DeviceContact(record.number, Optional.fromNullable(record.name),
-                            createContactAvatarAttachment(record.number), Optional.fromNullable(record.color)));
+                                                createContactAvatarAttachment(record.number), Optional.fromNullable(record.color),
+                                                Optional.absent()));
                 }
             }
 
